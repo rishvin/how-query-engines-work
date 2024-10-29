@@ -37,7 +37,7 @@ import com.google.common.collect.ImmutableList;
  */
 public class DriverTest {
 
-  final Driver driver = new Driver();
+  final io.andygrove.kquery.jdbc.Driver driver = new io.andygrove.kquery.jdbc.Driver();
 
   @Test
   public void acceptsValidUrl() throws SQLException {
@@ -58,11 +58,11 @@ public class DriverTest {
    * Note that this is a manual integration test that requires the Rust flight-server example to be running.
    */
   @Test
-  @Ignore
   public void executeQuery() throws SQLException {
-    try (Connection conn = DriverManager.getConnection("jdbc:arrow://localhost:50051", new Properties())) {
+    DriverManager.registerDriver(driver);
+    try (Connection conn = DriverManager.getConnection("jdbc:arrow://0.0.0.0:50051", new Properties())) {
       try (Statement stmt = conn.createStatement()) {
-        try (ResultSet rs = stmt.executeQuery("SELECT id FROM alltypes_plain")) {
+        try (ResultSet rs = stmt.executeQuery("SELECT VendorID, total_amount FROM csv.`/Users/rishab.joshi/code/how-query-engines-work/yellow_tripdata_2019-01.csv`")) {
 
           ResultSetMetaData md = rs.getMetaData();
           assertEquals(1, md.getColumnCount());

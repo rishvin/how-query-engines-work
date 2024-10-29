@@ -40,7 +40,7 @@ class Executor {
               .build()
       server.start()
 
-      println("Listening on $bindHost:$port")
+      println("Listening on $bindHost:$port and location: ${server.location}")
 
       while (true) {
         Thread.sleep(1000)

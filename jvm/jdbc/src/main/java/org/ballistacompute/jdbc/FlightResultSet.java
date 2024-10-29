@@ -141,7 +141,7 @@ public class FlightResultSet implements java.sql.ResultSet {
 
   @Override
   public int getInt(int i) throws SQLException {
-    return ResultSetHelper.getInt(getObject(i));
+    return io.andygrove.kquery.jdbc.ResultSetHelper.getInt(getObject(i));
   }
 
   @Override
@@ -297,7 +297,7 @@ public class FlightResultSet implements java.sql.ResultSet {
 
   @Override
   public ResultSetMetaData getMetaData() throws SQLException {
-    return new FlightResultSetMetaData(this.root.getFieldVectors());
+    return new io.andygrove.kquery.jdbc.FlightResultSetMetaData(this.root.getFieldVectors());
   }
 
   @Override

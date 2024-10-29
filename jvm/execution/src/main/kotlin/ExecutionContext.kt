@@ -16,6 +16,7 @@ package io.andygrove.kquery.execution
 
 import io.andygrove.kquery.datasource.CsvDataSource
 import io.andygrove.kquery.datasource.DataSource
+import io.andygrove.kquery.datasource.ParquetDataSource
 import io.andygrove.kquery.datatypes.RecordBatch
 import io.andygrove.kquery.logical.*
 import io.andygrove.kquery.optimizer.Optimizer
@@ -37,6 +38,17 @@ class ExecutionContext(val settings: Map<String, String>) {
   fun sql(sql: String): DataFrame {
     val tokens = SqlTokenizer(sql).tokenize()
     val ast = SqlParser(tokens).parse() as SqlSelect
+
+    if (ast.path != null && ast.fileType != null) {
+      if (ast.fileType == "csv") {
+        registerDataSource(ast.path!!, CsvDataSource(ast.path!!, null, true, batchSize))
+      } else if (ast.fileType == "parquet") {
+        registerDataSource(ast.path!!, ParquetDataSource(ast.path!!))
+      } else {
+        throw IllegalStateException("Unsupported file type: ${ast.fileType}")
+      }
+    }
+
     val df = SqlPlanner().createDataFrame(ast, tables)
     return DataFrameImpl(df.logicalPlan())
   }

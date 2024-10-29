@@ -28,7 +28,6 @@ class SqlPlanner {
 
   /** Create logical plan from parsed SQL statement. */
   fun createDataFrame(select: SqlSelect, tables: Map<String, DataFrame>): DataFrame {
-
     // get a reference to the data source
     val table =
         tables[select.tableName] ?: throw SQLException("No table named '${select.tableName}'")

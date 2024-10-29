@@ -54,6 +54,8 @@ data class SqlCast(val expr: SqlExpr, val dataType: SqlIdentifier) : SqlExpr
 
 data class SqlSort(val expr: SqlExpr, val asc: Boolean) : SqlExpr
 
+data class SqlFilePath(val fileType: String, val path: String) : SqlExpr
+
 interface SqlRelation : SqlExpr
 
 data class SqlSelect(
@@ -62,5 +64,8 @@ data class SqlSelect(
     val groupBy: List<SqlExpr>,
     val orderBy: List<SqlExpr>,
     val having: SqlExpr?,
-    val tableName: String
+    val tableName: String,
+    val fileType : String?,
+    val path: String?
+
 ) : SqlRelation

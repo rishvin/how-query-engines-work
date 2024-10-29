@@ -40,9 +40,9 @@ public class Driver implements java.sql.Driver {
     String c = url.substring(PREFIX.length());
     int i = c.indexOf(':');
     if (i == -1) {
-      return new FlightConnection(c, 50051);
+      return new io.andygrove.kquery.jdbc.FlightConnection(c, 50051);
     } else {
-      return new FlightConnection(c.substring(0,i), Integer.parseInt(c.substring(i + 1)));
+      return new io.andygrove.kquery.jdbc.FlightConnection(c.substring(0,i), Integer.parseInt(c.substring(i + 1)));
     }
   }
 

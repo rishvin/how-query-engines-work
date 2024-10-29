@@ -39,6 +39,18 @@ class ExecutionSqlTest {
   }
 
   @Test
+  fun `simple SELECT FROM FILE_PATH`() {
+
+    val ctx = createContext()
+
+    val df = ctx.sql("SELECT id FROM csv.`../testdata/employee.csv`")
+
+    val expected = "Projection: #id\n" + "\tScan: ../testdata/employee.csv; projection=None\n"
+
+    assertEquals(expected, format(df.logicalPlan()))
+  }
+
+  @Test
   fun `SELECT with WHERE`() {
 
     val ctx = createContext()

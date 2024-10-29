@@ -19,6 +19,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.SQLWarning;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.arrow.flight.CallOption;
@@ -27,7 +28,10 @@ import org.apache.arrow.flight.FlightClient;
 import org.apache.arrow.flight.FlightStream;
 import org.apache.arrow.flight.Location;
 import org.apache.arrow.flight.Ticket;
+import org.apache.arrow.flight.impl.Flight;
 import org.apache.arrow.memory.RootAllocator;
+
+import static com.sun.org.apache.xalan.internal.xsltc.compiler.util.Util.println;
 
 /**
  * Statement.
@@ -52,9 +56,13 @@ public class FlightStatement implements java.sql.Statement {
 
     Ticket ticket = new Ticket(query.getBytes());
 
+    println("Query bytes: " + new String(query.getBytes()));
+    println("Executing ticket bytes: " + new String(ticket.getBytes()));
+
+
     FlightStream stream = client.getStream(ticket, callOptions);
 
-    return new FlightResultSet(stream);
+    return new io.andygrove.kquery.jdbc.FlightResultSet(stream);
   }
 
   @Override

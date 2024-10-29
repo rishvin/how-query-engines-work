@@ -14,6 +14,8 @@
 
 package io.andygrove.kquery.sql
 
+import java.io.File
+
 
 class SqlTokenizer(val sql: String) {
 
@@ -39,6 +41,10 @@ class SqlTokenizer(val sql: String) {
         when {
             offset >= sql.length -> {
                 return token
+            }
+            FileType.isFileTypeStart(sql, offset) -> {
+                token = scanFilePath(offset)
+                offset = token.endOffset
             }
             Literal.isIdentifierStart(sql[offset]) -> {
                 token = scanIdentifier(offset)
@@ -107,6 +113,13 @@ class SqlTokenizer(val sql: String) {
             val tokenType: TokenType = Keyword.textOf(text) ?: Literal.IDENTIFIER
             Token(text, tokenType, endOffset)
         }
+    }
+
+    private fun scanFilePath(startOffset: Int): Token {
+        val fileType = FileType.getFileType(sql, startOffset)
+        val filePathStartOffset = startOffset + fileType.path.length
+        val filePathEndOffset = getOffsetUntilTerminatedChar('`', filePathStartOffset)
+        return Token(sql.substring(filePathStartOffset, filePathEndOffset), fileType, filePathEndOffset + 1)
     }
 
     /**

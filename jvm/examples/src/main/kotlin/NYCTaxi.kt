@@ -52,7 +52,7 @@ fun main() {
   val time =
       measureTimeMillis {
         val df =
-            ctx.csv("/mnt/nyctaxi/csv/year=2019/yellow_tripdata_2019-01.csv")
+            ctx.csv("/Users/rishab.joshi/code/how-query-engines-work/yellow_tripdata_2019-01.csv")
                 .aggregate(
                     listOf(col("passenger_count")),
                     listOf(max(cast(col("fare_amount"), ArrowTypes.FloatType))))

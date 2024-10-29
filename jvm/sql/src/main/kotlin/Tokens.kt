@@ -38,7 +38,7 @@ enum class Literal : TokenType {
         }
 
         fun isCharsStart(ch: Char): Boolean {
-            return '\'' == ch || '"' == ch
+            return '\'' == ch || '"' == ch || '`' == ch
         }
     }
 }
@@ -364,5 +364,27 @@ data class Token(
             else -> ""
         }
         return "Token(\"$text\", $typeType.$type, $endOffset)"
+    }
+}
+
+enum class FileType(val path: String) : TokenType {
+    CSV("csv.`"),
+    JSON("json.`"),
+    PARQUET("parquet.`");
+
+    companion object {
+        fun isFileTypeStart(path: String, startOffset: Int): Boolean {
+            return path.startsWith(CSV.path, startOffset) ||
+                    path.startsWith(JSON.path, startOffset) ||
+                    path.startsWith(PARQUET.path, startOffset)
+        }
+        fun getFileType(sql: String, startOffset: Int): FileType {
+            return when {
+                sql.startsWith(CSV.path, startOffset) -> CSV
+                sql.startsWith(JSON.path, startOffset) -> JSON
+                sql.startsWith(PARQUET.path, startOffset) -> PARQUET
+                else -> throw IllegalArgumentException("Unknown file type")
+            }
+        }
     }
 }

@@ -35,21 +35,28 @@ class BallistaFlightProducer : FlightProducer {
 
     try {
 
-      val action =
-          io.andygrove.kquery.protobuf.Action
-              .parseFrom(ticket?.bytes ?: throw IllegalArgumentException())
-      val logicalPlan = io.andygrove.kquery.protobuf.ProtobufDeserializer().fromProto(action.query)
-      println(logicalPlan.pretty())
+      if (ticket != null) {
+        println(" Received ticket: ${String(ticket.bytes)}")
+      }
 
-      val schema = logicalPlan.schema()
-      println(schema)
+//      val logicalPlanNode =
+//          io.andygrove.kquery.protobuf.LogicalPlanNode
+//              .parseFrom(ticket?.bytes ?: throw IllegalArgumentException(ticket.toString()))
+//      val logicalPlan = io.andygrove.kquery.protobuf.ProtobufDeserializer().fromProto(logicalPlanNode)
+//      println(logicalPlan.pretty())
+
 
       // TODO get from protobuf request
       val settings = mapOf<String, String>()
 
       val ctx = ExecutionContext(settings)
 
-      val results = ctx.execute(logicalPlan)
+      val df = ticket?.let { String(it.bytes) }?.let { ctx.sql(it) }
+
+      val results = requireNotNull(df?.let { ctx.execute(it.logicalPlan()) })
+
+      val schema = requireNotNull(df?.logicalPlan()?.schema())
+      println(schema)
 
       val allocator = RootAllocator(Long.MAX_VALUE)
 

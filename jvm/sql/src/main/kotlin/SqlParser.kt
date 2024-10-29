@@ -64,6 +64,12 @@ class SqlParser(val tokens: TokenStream) : PrattParser {
           Literal.STRING -> SqlString(token.text)
           Literal.LONG -> SqlLong(token.text.toLong())
           Literal.DOUBLE -> SqlDouble(token.text.toDouble())
+
+          // File path and types.
+          FileType.CSV -> SqlFilePath("csv", token.text)
+          FileType.PARQUET -> SqlFilePath("parquet", token.text)
+          FileType.JSON -> SqlFilePath("json", token.text)
+
           else -> throw IllegalStateException("Unexpected token $token")
         }
     logger.fine("parsePrefix() returning $expr")
@@ -150,8 +156,20 @@ class SqlParser(val tokens: TokenStream) : PrattParser {
   private fun parseSelect(): SqlSelect {
     val projection = parseExprList()
 
+    var table: SqlIdentifier? = null
+    var path: SqlFilePath? = null
+
     if (tokens.consumeKeyword("FROM")) {
-      val table = parseExpr() as SqlIdentifier
+
+      val tableOrPath = parseExpr()
+      if (tableOrPath is SqlIdentifier) {
+        table = tableOrPath
+      } else if (tableOrPath is SqlFilePath) {
+        path = tableOrPath
+        table = SqlIdentifier(tableOrPath.path)
+      } else {
+          throw IllegalStateException("Expected SqlIdentifier or SqlFilePath, found $table")
+      }
 
       // parse optional WHERE clause
       var filterExpr: SqlExpr? = null
@@ -177,7 +195,7 @@ class SqlParser(val tokens: TokenStream) : PrattParser {
         orderBy = parseOrder()
       }
 
-      return SqlSelect(projection, filterExpr, groupBy, orderBy, havingExpr, table.id)
+      return SqlSelect(projection, filterExpr, groupBy, orderBy, havingExpr, table.id, path?.fileType, path?.path)
     } else {
       throw IllegalStateException("Expected FROM keyword, found ${tokens.peek()}")
     }
