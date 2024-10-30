@@ -148,12 +148,17 @@ class BallistaFlightProducer : FlightProducer {
                 if (value == null) {
                   v.setNull(ri)
                 } else {
-                  v.set(ri, value as ByteArray)
+                  val byteArray = (value as String).toByteArray()
+                  v.set(ri, byteArray)
                 }
               }
             }
             else -> throw IllegalStateException(v.javaClass.name)
+
           }
+          v.valueCount = rowCount
+         // println("The value of v is: $v")
+
         }
 
         root.rowCount = rowCount

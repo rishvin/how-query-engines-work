@@ -14,6 +14,7 @@
 
 package io.andygrove.kquery.jdbc;
 
+import static org.codehaus.groovy.runtime.DefaultGroovyMethods.println;
 import static org.junit.Assert.*;
 
 import java.sql.Connection;
@@ -58,22 +59,28 @@ public class DriverTest {
    * Note that this is a manual integration test that requires the Rust flight-server example to be running.
    */
   @Test
-  public void executeQuery() throws SQLException {
+  public void   executeQuery() throws SQLException {
     DriverManager.registerDriver(driver);
     try (Connection conn = DriverManager.getConnection("jdbc:arrow://0.0.0.0:50051", new Properties())) {
       try (Statement stmt = conn.createStatement()) {
-        try (ResultSet rs = stmt.executeQuery("SELECT VendorID, total_amount FROM csv.`/Users/rishab.joshi/code/how-query-engines-work/yellow_tripdata_2019-01.csv`")) {
+        try (ResultSet rs = stmt.executeQuery("SELECT VendorID, total_amount FROM csv.`./yellow_tripdata_2019-01-tiny.csv`")) {
 
           ResultSetMetaData md = rs.getMetaData();
-          assertEquals(1, md.getColumnCount());
-          assertEquals("c0", md.getColumnName(1));
-          assertEquals(Types.INTEGER, md.getColumnType(1));
+            assertEquals(2, md.getColumnCount());
+            assertEquals("VendorID", md.getColumnName(1));
+            assertEquals(Types.OTHER, md.getColumnType(1));
+            assertEquals("total_amount", md.getColumnName(2));
+            assertEquals(Types.OTHER, md.getColumnType(2));
 
-          List<Integer> ids = new ArrayList<>();
+          List<String> ids = new ArrayList<>();
+          List<String> amounts = new ArrayList<>();
           while (rs.next()) {
-            ids.add(rs.getInt(1));
+            ids.add(rs.getString(1));
+            amounts.add(rs.getString(2));
           }
-          assertEquals(ImmutableList.of(4, 5, 6, 7, 2, 3, 0, 1), ids);
+
+          assertEquals(ImmutableList.of("1", "2", "3", "4", "5", "6", "7", "8"), ids);
+          assertEquals(ImmutableList.of("9.95", "16.3", "5.8", "7.55", "55.55", "13.31", "55.55", "9.05"), amounts);
         }
       }
     }
